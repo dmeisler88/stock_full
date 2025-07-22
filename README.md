@@ -21,39 +21,7 @@ Environment variables `SUPABASE_URL` and `SUPABASE_KEY` must be set with your Su
    ```
    Edit the example usage at the bottom of `trading_app.py` to place orders.
 
-The script writes to a `p&l` table with your cash balance, unrealized profit and loss, and total portfolio value.  A row is updated whenever you buy or sell shares so the table always reflects the latest state for the current day.
 
-### Daily Prices Table
-
-Create a `daily_prices` table in Supabase containing the columns:
-
-```
-symbol text
-date date
-close_price numeric
-```
-
-The app uses the most recent `close_price` for each symbol when processing trades.
-
-### Creating the P&L table
-
-Use the Supabase CLI to create a table for daily performance metrics:
-
-```bash
-supabase db query <<'SQL'
-CREATE TABLE "p&l" (
-  username text,
-  date date PRIMARY KEY,
-  unrealized_pnl numeric,
-  cash numeric,
-  total numeric
-);
-SQL
-```
-
-### Frontend
-
-`index.html` provides a simple interface to buy or sell shares. The page uses the FastAPI endpoints under `/api` and shows your cash balance, open positions, unrealized P&L and total equity after each trade.
 
 ## Deploying to Vercel
 

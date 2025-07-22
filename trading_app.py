@@ -1,6 +1,8 @@
 import os
 from datetime import date
+
 from typing import Dict, Any
+
 
 from supabase import create_client, Client
 
@@ -14,7 +16,9 @@ class TradingApp:
     def _get_latest_price(self, symbol: str) -> float:
         response = (
             self.supabase.table("daily_prices")
+
             .select("close_price")
+
             .eq("symbol", symbol)
             .order("date", desc=True)
             .limit(1)
@@ -22,9 +26,11 @@ class TradingApp:
         )
         if not response.data:
             raise ValueError(f"No price data for symbol {symbol}")
+
         return float(response.data[0]["close_price"])
 
     def buy(self, symbol: str, quantity: int) -> Dict[str, Any]:
+
         if symbol not in self.holdings and len(self.holdings) >= 10:
             raise ValueError("Maximum number of holdings reached")
         price = self._get_latest_price(symbol)
@@ -38,9 +44,11 @@ class TradingApp:
             position["quantity"] * position["avg_price"] + cost
         ) / new_quantity
         self.holdings[symbol] = {"quantity": new_quantity, "avg_price": new_avg_price}
+
         return self.update_daily_pnl()
 
     def sell(self, symbol: str, quantity: int) -> Dict[str, Any]:
+
         if symbol not in self.holdings or self.holdings[symbol]["quantity"] < quantity:
             raise ValueError("Not enough shares to sell")
         price = self._get_latest_price(symbol)
@@ -52,7 +60,9 @@ class TradingApp:
             del self.holdings[symbol]
         else:
             self.holdings[symbol] = position
+
         return self.update_daily_pnl()
+
 
     def _compute_unrealized_pnl(self) -> float:
         pnl = 0.0
@@ -60,6 +70,7 @@ class TradingApp:
             price = self._get_latest_price(symbol)
             pnl += (price - position["avg_price"]) * position["quantity"]
         return pnl
+
 
     def _portfolio_summary(self) -> Dict[str, Any]:
         """Return cash, holdings, and unrealized P&L totals."""
@@ -84,6 +95,7 @@ class TradingApp:
             on_conflict="date",
         ).execute()
         return summary
+
 
 
 def create_app() -> TradingApp:

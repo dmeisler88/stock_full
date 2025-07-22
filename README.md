@@ -23,6 +23,7 @@ Environment variables `SUPABASE_URL` and `SUPABASE_KEY` must be set with your Su
 
 The script updates a `p&l` table once a day with your cash balance, unrealized profit and loss, and total portfolio value.
 
+
 ### Creating the P&L table
 
 Use the Supabase CLI to create a table for daily performance metrics:
@@ -42,6 +43,8 @@ SQL
 ### Frontend
 
 `index.html` provides a simple interface to buy or sell shares. The page uses the FastAPI endpoints under `/api` and displays your cash and holdings after each trade.
+
+=======
 
 ## Deploying to Vercel
 

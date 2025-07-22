@@ -26,6 +26,7 @@ def update():
     return {"status": "updated"}
 
 
+
 @app.get("/portfolio")
 def portfolio():
     """Return current cash and holdings."""

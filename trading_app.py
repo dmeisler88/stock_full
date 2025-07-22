@@ -14,7 +14,9 @@ class TradingApp:
     def _get_latest_price(self, symbol: str) -> float:
         response = (
             self.supabase.table("daily_prices")
+
             .select("close_price")
+
             .eq("symbol", symbol)
             .order("date", desc=True)
             .limit(1)
@@ -22,7 +24,9 @@ class TradingApp:
         )
         if not response.data:
             raise ValueError(f"No price data for symbol {symbol}")
+
         return float(response.data[0]["close_price"])
+
 
     def buy(self, symbol: str, quantity: int) -> None:
         if symbol not in self.holdings and len(self.holdings) >= 10:

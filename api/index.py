@@ -24,3 +24,10 @@ def sell(symbol: str, quantity: int):
 def update():
     trader.update_daily_pnl()
     return {"status": "updated"}
+
+
+
+@app.get("/portfolio")
+def portfolio():
+    """Return current cash and holdings."""
+    return {"cash": trader.cash, "holdings": trader.holdings}

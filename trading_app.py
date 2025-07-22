@@ -1,6 +1,8 @@
 import os
 from datetime import date
-from typing import Dict
+
+from typing import Dict, Any
+
 
 from supabase import create_client, Client
 
@@ -14,7 +16,9 @@ class TradingApp:
     def _get_latest_price(self, symbol: str) -> float:
         response = (
             self.supabase.table("daily_prices")
-            .select("price")
+
+            .select("close_price")
+
             .eq("symbol", symbol)
             .order("date", desc=True)
             .limit(1)
@@ -22,9 +26,11 @@ class TradingApp:
         )
         if not response.data:
             raise ValueError(f"No price data for symbol {symbol}")
-        return float(response.data[0]["price"])
 
-    def buy(self, symbol: str, quantity: int) -> None:
+        return float(response.data[0]["close_price"])
+
+    def buy(self, symbol: str, quantity: int) -> Dict[str, Any]:
+
         if symbol not in self.holdings and len(self.holdings) >= 10:
             raise ValueError("Maximum number of holdings reached")
         price = self._get_latest_price(symbol)
@@ -39,7 +45,10 @@ class TradingApp:
         ) / new_quantity
         self.holdings[symbol] = {"quantity": new_quantity, "avg_price": new_avg_price}
 
-    def sell(self, symbol: str, quantity: int) -> None:
+        return self.update_daily_pnl()
+
+    def sell(self, symbol: str, quantity: int) -> Dict[str, Any]:
+
         if symbol not in self.holdings or self.holdings[symbol]["quantity"] < quantity:
             raise ValueError("Not enough shares to sell")
         price = self._get_latest_price(symbol)
@@ -52,6 +61,9 @@ class TradingApp:
         else:
             self.holdings[symbol] = position
 
+        return self.update_daily_pnl()
+
+
     def _compute_unrealized_pnl(self) -> float:
         pnl = 0.0
         for symbol, position in self.holdings.items():
@@ -59,18 +71,31 @@ class TradingApp:
             pnl += (price - position["avg_price"]) * position["quantity"]
         return pnl
 
-    def update_daily_pnl(self) -> None:
+
+    def _portfolio_summary(self) -> Dict[str, Any]:
+        """Return cash, holdings, and unrealized P&L totals."""
         pnl = self._compute_unrealized_pnl()
         total = self.cash + pnl
+        return {
+            "cash": self.cash,
+            "holdings": self.holdings,
+            "unrealized_pnl": pnl,
+            "total": total,
+        }
+
+    def update_daily_pnl(self) -> Dict[str, Any]:
+        summary = self._portfolio_summary()
         self.supabase.table("p&l").upsert(
             {
                 "date": date.today().isoformat(),
-                "cash": self.cash,
-                "unrealized_pnl": pnl,
-                "total": total,
+                "cash": summary["cash"],
+                "unrealized_pnl": summary["unrealized_pnl"],
+                "total": summary["total"],
             },
             on_conflict="date",
         ).execute()
+        return summary
+
 
 
 def create_app() -> TradingApp:

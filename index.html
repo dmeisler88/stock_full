@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading App</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
+    form { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.25rem; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; }
+    button { padding: 0.5rem 1rem; }
+    #portfolio { margin-top: 2rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Trading App</h1>
+
+  <form id="buy-form">
+    <h2>Buy</h2>
+    <label>Symbol <input type="text" id="buy-symbol" required></label>
+    <label>Quantity <input type="number" id="buy-qty" required></label>
+    <button type="submit">Buy</button>
+  </form>
+
+  <form id="sell-form">
+    <h2>Sell</h2>
+    <label>Symbol <input type="text" id="sell-symbol" required></label>
+    <label>Quantity <input type="number" id="sell-qty" required></label>
+    <button type="submit">Sell</button>
+  </form>
+
+  <div id="portfolio">
+    <h2>Portfolio</h2>
+    <p>Cash: $<span id="cash">0</span></p>
+    <p>Unrealized P&amp;L: $<span id="pnl">0</span></p>
+    <p>Total: $<span id="total">0</span></p>
+    <table id="holdings-table">
+      <thead>
+        <tr><th>Symbol</th><th>Quantity</th><th>Avg Price</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchPortfolio() {
+      const res = await fetch('/api/portfolio');
+      if (!res.ok) return;
+      const data = await res.json();
+      updatePortfolio(data);
+    }
+
+    function updatePortfolio(data) {
+      document.getElementById('cash').textContent = data.cash.toFixed(2);
+      document.getElementById('pnl').textContent = data.unrealized_pnl.toFixed(2);
+      document.getElementById('total').textContent = data.total.toFixed(2);
+      const tbody = document.getElementById('holdings-table').querySelector('tbody');
+      tbody.innerHTML = '';
+      for (const [symbol, info] of Object.entries(data.holdings)) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${symbol}</td><td>${info.quantity}</td><td>${info.avg_price.toFixed(2)}</td>`;
+        tbody.appendChild(row);
+      }
+    }
+
+    document.getElementById('buy-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const symbol = document.getElementById('buy-symbol').value;
+      const qty = parseInt(document.getElementById('buy-qty').value, 10);
+      const res = await fetch('/api/buy?symbol=' + encodeURIComponent(symbol) + '&quantity=' + qty, { method: 'POST' });
+      const data = await res.json();
+      updatePortfolio(data);
+    });
+
+    document.getElementById('sell-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const symbol = document.getElementById('sell-symbol').value;
+      const qty = parseInt(document.getElementById('sell-qty').value, 10);
+      const res = await fetch('/api/sell?symbol=' + encodeURIComponent(symbol) + '&quantity=' + qty, { method: 'POST' });
+      const data = await res.json();
+      updatePortfolio(data);
+    });
+
+    fetchPortfolio();
+  </script>
+</body>
+</html>

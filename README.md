@@ -21,7 +21,7 @@ Environment variables `SUPABASE_URL` and `SUPABASE_KEY` must be set with your Su
    ```
    Edit the example usage at the bottom of `trading_app.py` to place orders.
 
-The script updates a `p&l` table once a day with your cash balance, unrealized profit and loss, and total portfolio value.
+
 
 ## Deploying to Vercel
 

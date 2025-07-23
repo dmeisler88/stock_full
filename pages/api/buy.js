@@ -1,9 +1,9 @@
-import { createApp } from '@/lib/createApp'
+import { createApp } from '../../lib/createApp.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
   const { symbol, quantity } = req.query
-  const app = createApp()
+  const app = await createApp()
   try {
     const summary = await app.buy(symbol, parseInt(quantity))
     res.status(200).json(summary)

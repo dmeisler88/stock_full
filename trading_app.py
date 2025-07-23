@@ -85,7 +85,7 @@ class TradingApp:
 
     def update_daily_pnl(self) -> Dict[str, Any]:
         summary = self._portfolio_summary()
-        self.supabase.table("p&l").upsert(
+        self.supabase.table("pnl").upsert(
             {
                 "date": date.today().isoformat(),
                 "cash": summary["cash"],

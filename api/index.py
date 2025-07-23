@@ -25,11 +25,13 @@ def sell(symbol: str, quantity: int):
 
 @app.post("/update")
 def update():
-    summary = trader.update_daily_pnl()
-    return summary
-
+    trader.update_daily_pnl()
+    return {"status": "updated"}
 
 @app.get("/portfolio")
 def portfolio():
-    """Return current cash, holdings and unrealized P&L."""
-    return trader.update_daily_pnl()
+    """Return current cash and holdings."""
+    return {"cash": trader.cash, "holdings": trader.holdings}
+
+
+  

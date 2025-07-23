@@ -23,6 +23,7 @@ Environment variables `SUPABASE_URL` and `SUPABASE_KEY` must be set with your Su
 
 
 
+
 ## Deploying to Vercel
 
 Create a Vercel project and push this repository. Vercel detects the `api/index.py` function and deploys it as a serverless API. Ensure your Supabase credentials are set as environment variables in the Vercel dashboard.

@@ -11,25 +11,22 @@ export default async function handler(req, res) {
     // Check current state
     const summary = await app.portfolioSummary()
     
-    // Check database tables
+    // Check database tables (removed .execute() calls)
     const holdingsCheck = await app.supabase
       .from('holdings')
       .select('*')
-      .execute()
     
     const pricesCheck = await app.supabase
       .from('daily_prices')
-      .select('symbol, close_price')
+      .select('symbol, close_price, date')
       .order('date', { ascending: false })
       .limit(10)
-      .execute()
     
     const pnlCheck = await app.supabase
       .from('pnl')
       .select('*')
       .order('date', { ascending: false })
       .limit(5)
-      .execute()
 
     const debugInfo = {
       app_state: {
@@ -38,9 +35,12 @@ export default async function handler(req, res) {
         portfolio_summary: summary
       },
       database_state: {
-        holdings_table: holdingsCheck.data,
-        recent_prices: pricesCheck.data,
-        recent_pnl: pnlCheck.data
+        holdings_table: holdingsCheck.data || [],
+        holdings_error: holdingsCheck.error?.message,
+        recent_prices: pricesCheck.data || [],
+        prices_error: pricesCheck.error?.message,
+        recent_pnl: pnlCheck.data || [],
+        pnl_error: pnlCheck.error?.message
       },
       environment: {
         has_supabase_url: !!process.env.SUPABASE_URL,

@@ -35,6 +35,9 @@
   <div id="portfolio">
     <h2>Portfolio</h2>
     <p>Cash: $<span id="cash">0</span></p>
+
+    <p>Unrealized P&amp;L: $<span id="pnl">0</span></p>
+    <p>Total: $<span id="total">0</span></p>
     <table id="holdings-table">
       <thead>
         <tr><th>Symbol</th><th>Quantity</th><th>Avg Price</th></tr>
@@ -53,6 +56,9 @@
 
     function updatePortfolio(data) {
       document.getElementById('cash').textContent = data.cash.toFixed(2);
+
+      document.getElementById('pnl').textContent = data.unrealized_pnl.toFixed(2);
+      document.getElementById('total').textContent = data.total.toFixed(2);
       const tbody = document.getElementById('holdings-table').querySelector('tbody');
       tbody.innerHTML = '';
       for (const [symbol, info] of Object.entries(data.holdings)) {

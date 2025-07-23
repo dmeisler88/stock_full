@@ -7,18 +7,21 @@ trader = create_app()
 @app.post("/buy")
 def buy(symbol: str, quantity: int):
     try:
-        trader.buy(symbol, quantity)
+
+        summary = trader.buy(symbol, quantity)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    return {"cash": trader.cash, "holdings": trader.holdings}
+    return summary
+
 
 @app.post("/sell")
 def sell(symbol: str, quantity: int):
     try:
-        trader.sell(symbol, quantity)
+
+        summary = trader.sell(symbol, quantity)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    return {"cash": trader.cash, "holdings": trader.holdings}
+    return summary
 
 @app.post("/update")
 def update():
@@ -30,3 +33,5 @@ def portfolio():
     """Return current cash and holdings."""
     return {"cash": trader.cash, "holdings": trader.holdings}
 
+
+  

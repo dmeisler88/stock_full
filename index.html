@@ -3,89 +3,323 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trading App</title>
+  <title>Trading App Debug Tool</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 2rem; }
-    form { margin-bottom: 1rem; }
-    label { display: block; margin-bottom: 0.25rem; }
-    input[type="text"], input[type="number"] { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; }
-    button { padding: 0.5rem 1rem; }
-    #portfolio { margin-top: 2rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      max-width: 1200px; 
+      margin: auto; 
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    h1 { color: #333; border-bottom: 3px solid #007acc; padding-bottom: 0.5rem; }
+    h2 { color: #555; margin-top: 2rem; }
+    .debug-section {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .status-ok { color: #28a745; font-weight: bold; }
+    .status-error { color: #dc3545; font-weight: bold; }
+    .status-warning { color: #fd7e14; font-weight: bold; }
+    button { 
+      background: #007acc; 
+      color: white; 
+      border: none; 
+      padding: 0.7rem 1.5rem; 
+      border-radius: 4px; 
+      cursor: pointer;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      font-size: 14px;
+    }
+    button:hover { background: #005a9e; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    pre { 
+      background: #2d3748; 
+      color: #e2e8f0; 
+      padding: 1rem; 
+      border-radius: 4px; 
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .test-result {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    .test-success { background: #d4edda; border-color: #28a745; color: #155724; }
+    .test-error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+    .test-warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+    .loading { 
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #007acc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  
-  <h1>Trading App</h1>
-  <h1 style="color: red; background: yellow;">TEST - UPDATED VERSION 123</h1>
-  <form id="buy-form">
-    <h2>Buy</h2>
-    <label>Symbol <input type="text" id="buy-symbol" required></label>
-    <label>Quantity <input type="number" id="buy-qty" required></label>
-    <button type="submit">Buy</button>
-  </form>
+  <!-- Add this section to your existing index.html, right after the existing content -->
+  <div class="container">
+    <h1>🔧 Trading App Debug Tool</h1>
+    <p>This tool will help diagnose issues with your trading app. Click the buttons below to run various tests.</p>
 
-  <form id="sell-form">
-    <h2>Sell</h2>
-    <label>Symbol <input type="text" id="sell-symbol" required></label>
-    <label>Quantity <input type="number" id="sell-qty" required></label>
-    <button type="submit">Sell</button>
-  </form>
+    <div class="debug-section">
+      <h2>🔍 Quick Diagnostics</h2>
+      <button onclick="runAllTests()">Run All Tests</button>
+      <button onclick="testBasicAPI()">Test Basic API</button>
+      <button onclick="testDebugEndpoint()">Test Debug Endpoint</button>
+      <button onclick="testPortfolio()">Test Portfolio</button>
+      <button onclick="testBuySell()">Test Buy/Sell</button>
+      <div id="diagnostics-results"></div>
+    </div>
 
-  <div id="portfolio">
-    <h2>Portfolio</h2>
-    <p>Cash: $<span id="cash">0</span></p>
-    <p>Unrealized P&amp;L: $<span id="pnl">0</span></p>
-    <p>Total: $<span id="total">0</span></p>
-    <table id="holdings-table">
-      <thead>
-        <tr><th>Symbol</th><th>Quantity</th><th>Avg Price</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="debug-section">
+      <h2>📊 Manual Testing</h2>
+      <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label>Symbol: <input type="text" id="test-symbol" value="AAPL" style="padding: 0.3rem;"></label>
+        </div>
+        <div>
+          <label>Quantity: <input type="number" id="test-quantity" value="10" style="padding: 0.3rem;"></label>
+        </div>
+      </div>
+      <button onclick="testBuy()">Test Buy Order</button>
+      <button onclick="testSell()">Test Sell Order</button>
+      <div id="manual-test-results"></div>
+    </div>
+
+    <div class="debug-section">
+      <h2>📋 Potential Issues & Solutions</h2>
+      <div id="issues-solutions">
+        <h3>Common Issues:</h3>
+        <ul>
+          <li><strong>$1M not showing:</strong> Check if P&L table has initial data or if starting cash is being loaded correctly</li>
+          <li><strong>Can't buy/sell:</strong> Verify Supabase credentials, database connection, and table structure</li>
+          <li><strong>No price data:</strong> Ensure daily_prices table has data for the symbols you're trying to trade</li>
+          <li><strong>CORS errors:</strong> Check if running locally vs deployed - API endpoints might differ</li>
+        </ul>
+        
+        <h3>Debug Steps:</h3>
+        <ol>
+          <li>Verify environment variables (SUPABASE_URL, SUPABASE_KEY)</li>
+          <li>Check database tables exist: holdings, daily_prices, pnl</li>
+          <li>Verify daily_prices has recent data for test symbols</li>
+          <li>Check browser console for JavaScript errors</li>
+          <li>Test API endpoints individually</li>
+        </ol>
+      </div>
+    </div>
   </div>
 
   <script>
-    async function fetchPortfolio() {
-      const res = await fetch('/api/portfolio');
-      if (!res.ok) return;
-      const data = await res.json();
-      updatePortfolio(data);
+    let testResults = [];
+
+    function showLoading(elementId) {
+      document.getElementById(elementId).innerHTML = '<div class="loading"></div>Running tests...';
     }
 
-    function updatePortfolio(data) {
-      document.getElementById('cash').textContent = data.cash.toFixed(2);
-      document.getElementById('pnl').textContent = data.unrealized_pnl.toFixed(2);
-      document.getElementById('total').textContent = data.total.toFixed(2);
-      const tbody = document.getElementById('holdings-table').querySelector('tbody');
-      tbody.innerHTML = '';
-      for (const [symbol, info] of Object.entries(data.holdings)) {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${symbol}</td><td>${info.quantity}</td><td>${info.avg_price.toFixed(2)}</td>`;
-        tbody.appendChild(row);
+    function addResult(message, type = 'info', details = null) {
+      testResults.push({ message, type, details, timestamp: new Date().toISOString() });
+    }
+
+    function displayResults(elementId) {
+      const resultsDiv = document.getElementById(elementId);
+      let html = '';
+      
+      testResults.forEach(result => {
+        const cssClass = result.type === 'error' ? 'test-error' : 
+                        result.type === 'warning' ? 'test-warning' : 'test-success';
+        html += `<div class="${cssClass}">
+          <strong>${result.message}</strong>
+          ${result.details ? `<pre>${JSON.stringify(result.details, null, 2)}</pre>` : ''}
+        </div>`;
+      });
+      
+      resultsDiv.innerHTML = html;
+    }
+
+    async function testBasicAPI() {
+      testResults = [];
+      showLoading('diagnostics-results');
+      
+      try {
+        const response = await fetch('/api/test');
+        if (response.ok) {
+          const data = await response.json();
+          addResult('✅ Basic API connection working', 'success', data);
+          
+          if (!data.hasSupabaseUrl || !data.hasSupabaseKey) {
+            addResult('⚠️ Missing Supabase credentials', 'warning', {
+              hasSupabaseUrl: data.hasSupabaseUrl,
+              hasSupabaseKey: data.hasSupabaseKey
+            });
+          }
+        } else {
+          addResult('❌ Basic API test failed', 'error', { status: response.status });
+        }
+      } catch (error) {
+        addResult('❌ API connection failed', 'error', { error: error.message });
+      }
+      
+      displayResults('diagnostics-results');
+    }
+
+    async function testDebugEndpoint() {
+      try {
+        const response = await fetch('/api/debug');
+        const data = await response.json();
+        
+        if (response.ok) {
+          addResult('✅ Debug endpoint working', 'success');
+          
+          // Check for specific issues
+          if (data.debug.app_state.cash !== 1000000) {
+            addResult(`⚠️ Starting cash is ${data.debug.app_state.cash}, not $1M`, 'warning');
+          }
+          
+          if (Object.keys(data.debug.app_state.holdings).length === 0) {
+            addResult('ℹ️ No current holdings', 'info');
+          }
+          
+          if (!data.debug.database_state.recent_prices.length) {
+            addResult('❌ No price data found - this will prevent buying/selling', 'error');
+          }
+          
+          addResult('Debug data retrieved', 'success', data.debug);
+        } else {
+          addResult('❌ Debug endpoint failed', 'error', data);
+        }
+      } catch (error) {
+        addResult('❌ Debug endpoint error', 'error', { error: error.message });
       }
     }
 
-    document.getElementById('buy-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const symbol = document.getElementById('buy-symbol').value;
-      const qty = parseInt(document.getElementById('buy-qty').value, 10);
-      const res = await fetch('/api/buy?symbol=' + encodeURIComponent(symbol) + '&quantity=' + qty, { method: 'POST' });
-      const data = await res.json();
-      updatePortfolio(data);
-    });
+    async function testPortfolio() {
+      try {
+        const response = await fetch('/api/portfolio');
+        const data = await response.json();
+        
+        if (response.ok) {
+          addResult('✅ Portfolio endpoint working', 'success', data);
+          
+          if (data.cash < 1000000 && Object.keys(data.holdings).length === 0) {
+            addResult('⚠️ Portfolio shows less than $1M with no holdings - may need database reset', 'warning');
+          }
+        } else {
+          addResult('❌ Portfolio endpoint failed', 'error', data);
+        }
+      } catch (error) {
+        addResult('❌ Portfolio error', 'error', { error: error.message });
+      }
+    }
 
-    document.getElementById('sell-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const symbol = document.getElementById('sell-symbol').value;
-      const qty = parseInt(document.getElementById('sell-qty').value, 10);
-      const res = await fetch('/api/sell?symbol=' + encodeURIComponent(symbol) + '&quantity=' + qty, { method: 'POST' });
-      const data = await res.json();
-      updatePortfolio(data);
-    });
+    async function testBuySell() {
+      // Test with a common stock symbol
+      const testSymbol = 'AAPL';
+      const testQty = 1;
+      
+      try {
+        // Test buy
+        const buyResponse = await fetch(`/api/buy?symbol=${testSymbol}&quantity=${testQty}`, {
+          method: 'POST'
+        });
+        const buyData = await buyResponse.json();
+        
+        if (buyResponse.ok) {
+          addResult(`✅ Buy test successful for ${testSymbol}`, 'success', buyData);
+        } else {
+          addResult(`❌ Buy test failed for ${testSymbol}`, 'error', buyData);
+        }
+      } catch (error) {
+        addResult('❌ Buy test error', 'error', { error: error.message });
+      }
+    }
 
-    fetchPortfolio();
+    async function testBuy() {
+      const symbol = document.getElementById('test-symbol').value;
+      const quantity = parseInt(document.getElementById('test-quantity').value);
+      
+      showLoading('manual-test-results');
+      testResults = [];
+      
+      try {
+        const response = await fetch(`/api/buy?symbol=${symbol}&quantity=${quantity}`, {
+          method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          addResult(`✅ Buy order successful: ${quantity} shares of ${symbol}`, 'success', data);
+        } else {
+          addResult(`❌ Buy order failed: ${symbol}`, 'error', data);
+        }
+      } catch (error) {
+        addResult('❌ Buy order error', 'error', { error: error.message });
+      }
+      
+      displayResults('manual-test-results');
+    }
+
+    async function testSell() {
+      const symbol = document.getElementById('test-symbol').value;
+      const quantity = parseInt(document.getElementById('test-quantity').value);
+      
+      showLoading('manual-test-results');
+      testResults = [];
+      
+      try {
+        const response = await fetch(`/api/sell?symbol=${symbol}&quantity=${quantity}`, {
+          method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          addResult(`✅ Sell order successful: ${quantity} shares of ${symbol}`, 'success', data);
+        } else {
+          addResult(`❌ Sell order failed: ${symbol}`, 'error', data);
+        }
+      } catch (error) {
+        addResult('❌ Sell order error', 'error', { error: error.message });
+      }
+      
+      displayResults('manual-test-results');
+    }
+
+    async function runAllTests() {
+      testResults = [];
+      showLoading('diagnostics-results');
+      
+      await testBasicAPI();
+      await testDebugEndpoint();
+      await testPortfolio();
+      await testBuySell();
+      
+      displayResults('diagnostics-results');
+    }
+
+    // Auto-run basic test on load
+    window.onload = () => {
+      testBasicAPI();
+    };
   </script>
 </body>
 </html>
